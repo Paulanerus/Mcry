@@ -15,9 +15,7 @@ namespace Mcry
         class PollPoll : public PollBase
         {
         public:
-            PollPoll(int32_t timeout) noexcept : PollBase(timeout)
-            {
-            }
+            PollPoll(int32_t timeout) noexcept : PollBase(timeout) {}
 
             bool add(int32_t file_fd) override
             {

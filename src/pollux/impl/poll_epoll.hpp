@@ -19,6 +19,11 @@ namespace Mcry
                 // TODO handle error
             }
 
+            ~PollEPoll() noexcept override
+            {
+                close(m_EpollFD);
+            }
+
             bool add(int32_t file_fd) override
             {
                 if (m_EpollFD == -1)
@@ -63,11 +68,6 @@ namespace Mcry
             PolluxIOType type() const noexcept override
             {
                 return PolluxIOType::EPOLL;
-            }
-
-            void finish() const noexcept override
-            {
-                close(m_EpollFD);
             }
 
         private:

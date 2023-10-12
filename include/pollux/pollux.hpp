@@ -28,7 +28,7 @@ namespace Mcry
         {
 
         public:
-            PolluxIO(bool large, int32_t timeout);
+            PolluxIO(bool large, int32_t timeout = -1) noexcept;
 
             ~PolluxIO();
 

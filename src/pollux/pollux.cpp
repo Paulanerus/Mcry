@@ -14,15 +14,12 @@ namespace Mcry
 {
     namespace Pollux
     {
-        PolluxIO::PolluxIO(bool large, int32_t timeout)
+        PolluxIO::PolluxIO(bool large, int32_t timeout) noexcept
         {
             m_PollBase = std::make_unique<PollPoll>(timeout);
         }
 
-        PolluxIO::~PolluxIO()
-        {
-            m_PollBase->finish();
-        }
+        PolluxIO::~PolluxIO() = default;
 
         bool PolluxIO::add(int32_t file_fd)
         {

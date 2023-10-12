@@ -13,7 +13,7 @@ namespace Mcry
         public:
             PollBase(int32_t timeout = -1) noexcept : m_Timeout(timeout) {}
 
-            virtual void finish() const noexcept {}
+            virtual ~PollBase() noexcept = default;
 
             virtual bool add(int32_t file_fd) = 0;
 
