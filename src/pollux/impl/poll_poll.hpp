@@ -1,7 +1,9 @@
 #pragma once
 
-#include "pollux_base.hpp"
+#include "poll_base.hpp"
 
+#include <iostream>
+#include <cerrno>
 #include <vector>
 
 #include <poll.h>
@@ -10,10 +12,10 @@ namespace Mcry
 {
     namespace Pollux
     {
-        class PolluxIOPoll : public PolluxIOBase
+        class PollPoll : public PollBase
         {
         public:
-            PolluxIOPoll(int32_t timeout) noexcept : PolluxIOBase(timeout)
+            PollPoll(int32_t timeout) noexcept : PollBase(timeout)
             {
             }
 
@@ -56,7 +58,10 @@ namespace Mcry
                 switch (ret)
                 {
                 case -1:
-                    return PolluxIOEvent::ERROR;
+                    if (errno == EINTR)
+                        return PolluxIOEvent::INTERRUPT;
+                    else
+                        return PolluxIOEvent::ERROR;
                 case 0:
                     return PolluxIOEvent::TIME_OUT;
                 default:

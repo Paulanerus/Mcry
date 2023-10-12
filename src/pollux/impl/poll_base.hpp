@@ -1,32 +1,19 @@
 #pragma once
 
+#include "pollux/pollux.hpp"
+
 #include <functional>
 
 namespace Mcry
 {
     namespace Pollux
     {
-        enum PolluxIOType
-        {
-            POLL,
-            EPOLL,
-            KQUEUE,
-        };
-
-        enum PolluxIOEvent
-        {
-            SUCCESS,
-            TIME_OUT,
-            INTERRUPT,
-            ERROR,
-        };
-
-        class PolluxIOBase
+        class PollBase
         {
         public:
-            PolluxIOBase(int32_t timeout = -1) noexcept {}
+            PollBase(int32_t timeout = -1) noexcept : m_Timeout(timeout) {}
 
-            virtual ~PolluxIOBase() = default;
+            virtual void finish() const noexcept {}
 
             virtual bool add(int32_t file_fd) = 0;
 

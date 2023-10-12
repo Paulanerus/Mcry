@@ -1,6 +1,8 @@
 #pragma once
 
-#include "pollux_base.hpp"
+#include "poll_base.hpp"
+
+#include <cerrno>
 
 #include <sys/epoll.h>
 #include <unistd.h>
@@ -9,10 +11,10 @@ namespace Mcry
 {
     namespace Pollux
     {
-        class PolluxIOEPoll : PolluxIOBase
+        class PollEPoll : PollBase
         {
         public:
-            PolluxIOEPoll(int32_t timeout) noexcept : PolluxIOBase(timeout), m_EpollFD(epoll_create1(0))
+            PollEPoll(int32_t timeout) noexcept : PollBase(timeout), m_EpollFD(epoll_create1(0))
             {
                 // TODO handle error
             }
@@ -41,7 +43,10 @@ namespace Mcry
                 switch (m_NumEvents)
                 {
                 case -1:
-                    return PolluxIOEvent::ERROR;
+                    if (errno == EINTR)
+                        return PolluxIOEvent::INTERRUPT;
+                    else
+                        return PolluxIOEvent::ERROR;
                 case 0:
                     return PolluxIOEvent::TIME_OUT;
                 default:
@@ -60,7 +65,7 @@ namespace Mcry
                 return PolluxIOType::EPOLL;
             }
 
-            ~PolluxIOEPoll() noexcept override
+            void finish() const noexcept override
             {
                 close(m_EpollFD);
             }
