@@ -8,6 +8,8 @@
 
 #elif __FreeBSD__ or __APPLE__
 #define USE_BSD
+
+#include "impl/poll_kqueue.hpp"
 #endif
 
 namespace Mcry
@@ -22,6 +24,8 @@ namespace Mcry
                 m_PollBase = std::make_unique<PollEPoll>(timeout);
             else
                 m_PollBase = std::make_unique<PollPoll>(timeout);
+#elif USE_BSD
+            m_PollBase = std::make_unique<PollKQueue>(timeout);
 #endif
         }
 
