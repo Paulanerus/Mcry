@@ -3,5 +3,6 @@
 bin/
 build/
 lib/
+debug/
 
 Makefile
