@@ -77,7 +77,9 @@ int main(int argc, char *argv[])
     if (info != nullptr)
         freeaddrinfo(info);
 
-    Mcry::Pollux::PolluxIO pollux{false};
+    Mcry::Pollux::PolluxIO pollux{true};
+
+    std::cout << "Type: " << pollux.type() << std::endl;
 
     pollux.add(sock);
 
