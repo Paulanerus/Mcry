@@ -3,6 +3,7 @@
 #include <atomic>
 #include <csignal>
 #include <cstring>
+#include <string>
 #include <iostream>
 
 #include <arpa/inet.h>
@@ -76,7 +77,7 @@ int main(int argc, char *argv[])
     if (info != nullptr)
         freeaddrinfo(info);
 
-    Mcry::Pollux::PolluxIO pollux{false, -1};
+    Mcry::Pollux::PolluxIO pollux{false};
 
     pollux.add(sock);
 
@@ -121,18 +122,14 @@ int main(int argc, char *argv[])
 
                     std::cout << "Client message: " << buf << std::endl;
 
-                    const char *msg = "Hello, client";
-                    send(file_id, msg, strlen(msg), 0);
+                    const std::string msg{"Hello, client"};
+                    send(file_id, &msg[0], msg.length(), 0);
                 }
             };
 
             pollux.handle(handle_fd);
         }
-        else if (ret == Mcry::Pollux::PolluxIOEvent::INTERRUPT)
-            std::cout << "Interrupted" << std::endl;
-        else if (ret == Mcry::Pollux::PolluxIOEvent::TIME_OUT)
-            std::cout << "Timed out" << std::endl;
-        else
+        else if (ret == Mcry::Pollux::PolluxIOEvent::ERROR)
             std::cout << "An error occured (" << std::strerror(errno) << ")" << std::endl;
     }
 
