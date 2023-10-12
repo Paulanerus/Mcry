@@ -16,7 +16,13 @@ namespace Mcry
     {
         PolluxIO::PolluxIO(bool large, int32_t timeout) noexcept
         {
-            m_PollBase = std::make_unique<PollPoll>(timeout);
+
+#ifdef USE_LINUX
+            if (large)
+                m_PollBase = std::make_unique<PollEPoll>(timeout);
+            else
+                m_PollBase = std::make_unique<PollPoll>(timeout);
+#endif
         }
 
         PolluxIO::~PolluxIO() = default;

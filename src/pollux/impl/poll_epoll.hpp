@@ -11,7 +11,7 @@ namespace Mcry
 {
     namespace Pollux
     {
-        class PollEPoll : PollBase
+        class PollEPoll : public PollBase
         {
         public:
             PollEPoll(int32_t timeout) noexcept : PollBase(timeout), m_EpollFD(epoll_create1(0))
