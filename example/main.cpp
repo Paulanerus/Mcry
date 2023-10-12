@@ -87,52 +87,59 @@ int main(int argc, char *argv[])
     {
         Mcry::Pollux::PolluxIOEvent ret = pollux.wait();
 
-        if (ret == Mcry::Pollux::PolluxIOEvent::SUCCESS)
+        if (ret != Mcry::Pollux::PolluxIOEvent::SUCCESS)
         {
-            auto handle_fd = [&pollux, &sock](int32_t file_id)
-            {
-                if (file_id == sock)
-                {
-                    int32_t client = accept(sock, nullptr, nullptr);
+            if (ret == Mcry::Pollux::PolluxIOEvent::ERROR)
+                std::cout << "Pollux error... " << std::strerror(errno) << std::endl;
+            else if (ret == Mcry::Pollux::PolluxIOEvent::TIME_OUT)
+                std::cout << "Pollux timeout..." << std::endl;
+            else
+                std::cout << "Pollux interrupted" << std::endl;
 
-                    if (client == -1)
-                    {
-                        std::cout << "Accept error... " << std::strerror(errno) << std::endl;
-                        return;
-                    }
-
-                    pollux.add(client);
-                }
-                else
-                {
-                    char buf[20];
-                    std::fill_n(buf, sizeof(buf), 0);
-
-                    int32_t num_bytes = recv(file_id, buf, sizeof(buf), 0);
-
-                    if (num_bytes <= 0)
-                    {
-                        if (num_bytes == -1)
-                            std::cout << std::strerror(errno) << std::endl;
-
-                        close(file_id);
-
-                        pollux.remove(file_id);
-
-                        return;
-                    }
-
-                    std::cout << "Client message: " << buf << std::endl;
-
-                    const std::string msg{"Hello, client"};
-                    send(file_id, &msg[0], msg.length(), 0);
-                }
-            };
-
-            pollux.handle(handle_fd);
+            continue;
         }
-        else if (ret == Mcry::Pollux::PolluxIOEvent::ERROR)
-            std::cout << "An error occured (" << std::strerror(errno) << ")" << std::endl;
+
+        auto handle_fd = [&pollux, &sock](int32_t file_id)
+        {
+            if (file_id == sock)
+            {
+                int32_t client = accept(sock, nullptr, nullptr);
+
+                if (client == -1)
+                {
+                    std::cout << "Accept error... " << std::strerror(errno) << std::endl;
+                    return;
+                }
+
+                pollux.add(client);
+            }
+            else
+            {
+                char buf[20];
+                std::fill_n(buf, sizeof(buf), 0);
+
+                int32_t num_bytes = recv(file_id, buf, sizeof(buf), 0);
+
+                if (num_bytes <= 0)
+                {
+                    if (num_bytes == -1)
+                        std::cout << std::strerror(errno) << std::endl;
+
+                    close(file_id);
+
+                    pollux.remove(file_id);
+
+                    return;
+                }
+
+                std::cout << "Client message: " << buf << std::endl;
+
+                const std::string msg{"Hello, client"};
+                send(file_id, &msg[0], msg.length(), 0);
+            }
+        };
+
+        pollux.handle(handle_fd);
     }
 
     std::cout << "\nExiting..." << std::endl;
