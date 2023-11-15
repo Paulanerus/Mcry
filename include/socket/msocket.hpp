@@ -1,40 +1,15 @@
 #pragma once
 
-#include "../buffer/mbuffer.hpp"
-
-#include <string_view>
-#include <cstdint>
+#include "socket_utils.hpp"
 
 #include <sys/socket.h>
 
 namespace Mcry
 {
-    enum class Protocol
-    {
-        TCP,
-        UDP,
-        RUDP,
-    };
-
-    struct ConnectionInfo
-    {
-        std::string_view address;
-        uint16_t port;
-        bool is_ipv6 = false;
-        bool is_unix = false;
-        Protocol protocol = Protocol::TCP;
-    };
-
-    struct MReply
-    {
-        bool success;
-        MBuffer buffer;
-    };
-
     class MSocket
     {
     public:
-        MSocket(const std::string_view &address_specifier);
+        MSocket(const std::string_view &address_specifier, const SocketConfig &config = {.max_connections = -1, .backlog = 64, .auto_accept = true});
 
         ~MSocket();
 
@@ -57,6 +32,8 @@ namespace Mcry
         sockaddr_storage getSockAddr(const std::string_view &address, uint16_t port) const noexcept;
 
     private:
+        const SocketConfig m_Config;
+
         int32_t m_Socket;
 
         ConnectionInfo m_Info{};

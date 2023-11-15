@@ -8,7 +8,7 @@
 namespace Mcry
 {
 
-    MSocket::MSocket(const std::string_view &address_specifier)
+    MSocket::MSocket(const std::string_view &address_specifier, const SocketConfig &config) : m_Config(config)
     {
         /*
             IP and Port are required otherwise unix domain socket is assumed.
@@ -60,8 +60,11 @@ namespace Mcry
         if (::bind(m_Socket, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)) == -1)
             return false;
 
-        if (listen(m_Socket, 10) == -1)
+        if (listen(m_Socket, m_Config.backlog) == -1)
             return false;
+
+        if (!m_Config.auto_accept)
+            return true;
 
         // TODO (paul) thread auto accepter
 

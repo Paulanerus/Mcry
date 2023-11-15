@@ -42,8 +42,6 @@ int main(int argc, char *argv[])
 
     Mcry::Pollux::PolluxIO pollux{true};
 
-    std::cout << "Type: " << pollux.type() << std::endl;
-
     const auto sock = m_socket.descriptor();
 
     pollux.add(sock);
