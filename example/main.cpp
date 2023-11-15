@@ -15,14 +15,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#ifndef TCP_PORT
-#define TCP_PORT "8346"
-#endif
-
-#ifndef BACKLOG
-#define BACKLOG 4
-#endif
-
 std::atomic_bool is_running{true};
 
 int main(int argc, char *argv[])
@@ -32,7 +24,7 @@ int main(int argc, char *argv[])
 
     Mcry::MSocket m_socket{"127.0.0.1:25007/tcp"};
 
-    if (m_socket.bind())
+    if (!m_socket.bind())
     {
         std::cout << "Failed to bind socket... " << std::strerror(errno) << std::endl;
         return EXIT_FAILURE;
