@@ -1,5 +1,7 @@
 #include "pollux/pollux.hpp"
 
+#include "mcry.hpp"
+
 #include <atomic>
 #include <csignal>
 #include <cstring>
@@ -21,10 +23,6 @@
 #define BACKLOG 4
 #endif
 
-#ifndef MAX_EVENTS
-#define MAX_EVENTS 10
-#endif
-
 std::atomic_bool is_running{true};
 
 int main(int argc, char *argv[])
@@ -32,54 +30,21 @@ int main(int argc, char *argv[])
     std::signal(SIGINT, [](int signal)
                 { is_running = false; });
 
-    addrinfo *info{};
+    Mcry::MSocket m_socket{"127.0.0.1:25007/tcp"};
 
-    addrinfo hints{};
-    std::memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-
-    if (getaddrinfo("127.0.0.1", TCP_PORT, &hints, &info) != 0)
-        return EXIT_FAILURE;
-
-    int sock = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
-
-    if (sock == -1)
+    if (m_socket.bind())
     {
-        std::cout << "Socket error... " << std::strerror(errno) << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    int32_t opt{1};
-    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
-    {
-        std::cout << "Setsockopt error... " << std::strerror(errno) << std::endl;
-        close(sock);
-        return EXIT_FAILURE;
-    }
-
-    if (bind(sock, info->ai_addr, info->ai_addrlen) == -1)
-    {
-        std::cout << "Bind error... " << std::strerror(errno) << std::endl;
-        close(sock);
-        return EXIT_FAILURE;
-    }
-
-    if (listen(sock, BACKLOG) == -1)
-    {
-        std::cout << "Listen error... " << std::strerror(errno) << std::endl;
-        close(sock);
+        std::cout << "Failed to bind socket... " << std::strerror(errno) << std::endl;
         return EXIT_FAILURE;
     }
 
     std::cout << "Waiting for connection..." << std::endl;
 
-    if (info != nullptr)
-        freeaddrinfo(info);
-
     Mcry::Pollux::PolluxIO pollux{true};
 
     std::cout << "Type: " << pollux.type() << std::endl;
+
+    const auto sock = m_socket.descriptor();
 
     pollux.add(sock);
 
