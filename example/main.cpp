@@ -1,19 +1,9 @@
-#include "pollux/pollux.hpp"
-
 #include "mcry.hpp"
 
 #include <atomic>
 #include <csignal>
-#include <cstring>
 #include <string>
 #include <iostream>
-
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 
 std::atomic_bool is_running{true};
 
@@ -45,11 +35,11 @@ int main(int argc, char *argv[])
         if (ret != Mcry::Pollux::PolluxIOEvent::SUCCESS)
         {
             if (ret == Mcry::Pollux::PolluxIOEvent::ERROR)
-                std::cout << "Pollux error... " << std::strerror(errno) << std::endl;
+                std::cout << "\nPollux error... " << std::strerror(errno) << std::endl;
             else if (ret == Mcry::Pollux::PolluxIOEvent::TIME_OUT)
-                std::cout << "Pollux timeout..." << std::endl;
+                std::cout << "\nPollux timeout..." << std::endl;
             else
-                std::cout << "Pollux interrupted" << std::endl;
+                std::cout << "\nPollux interrupted" << std::endl;
 
             continue;
         }
@@ -97,9 +87,7 @@ int main(int argc, char *argv[])
         pollux.handle(handle_fd);
     }
 
-    std::cout << "\nExiting..." << std::endl;
-
-    close(sock);
+    std::cout << "Exiting..." << std::endl;
 
     return EXIT_SUCCESS;
 }
