@@ -1,4 +1,5 @@
 #include "buffer/mbuffer.hpp"
+#include <iostream>
 
 #include "net/mnet.hpp"
 
@@ -109,6 +110,11 @@ namespace Mcry
     MBuffer &MBuffer::put(bool val) noexcept
     {
         return put(reinterpret_cast<uint8_t *>(&val), sizeof(bool));
+    }
+
+    MBuffer &MBuffer::put(const std::string &val) noexcept
+    {
+        return put(reinterpret_cast<uint8_t *>(&(const_cast<std::string &>(val)[0])), val.length());
     }
 
     bool MBuffer::get(uint8_t &val, size_t index) const noexcept
@@ -229,6 +235,17 @@ namespace Mcry
         return true;
     }
 
+    bool MBuffer::get(std::string &val, size_t length, size_t index) const noexcept
+    {
+        if (!hasEnoughSpace(index, length))
+            return false;
+
+        for (size_t i{}; i < length; i++)
+            val += m_Buffer[index + i];
+
+        return true;
+    }
+
     uint8_t MBuffer::operator[](size_t index) const noexcept
     {
         if (index < 0 || index >= m_Buffer.size())
@@ -288,6 +305,11 @@ namespace Mcry
     }
 
     MBuffer &MBuffer::operator<<(bool val) noexcept
+    {
+        return put(val);
+    }
+
+    MBuffer &MBuffer::operator<<(const std::string &val) noexcept
     {
         return put(val);
     }

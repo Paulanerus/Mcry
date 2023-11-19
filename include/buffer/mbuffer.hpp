@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <string_view>
+#include <string>
 #include <cstddef>
 #include <vector>
 
@@ -44,6 +44,8 @@ namespace Mcry
 
         MBuffer &put(bool val) noexcept;
 
+        MBuffer &put(const std::string &val) noexcept;
+
         bool get(uint8_t &val, size_t index = 0) const noexcept;
 
         bool get(int8_t &val, size_t index = 0) const noexcept;
@@ -65,6 +67,8 @@ namespace Mcry
         bool get(double &val, size_t index = 0) const noexcept;
 
         bool get(bool &val, size_t index = 0) const noexcept;
+
+        bool get(std::string &val, size_t length, size_t index = 0) const noexcept;
 
         uint8_t operator[](size_t index) const noexcept;
 
@@ -89,6 +93,8 @@ namespace Mcry
         MBuffer &operator<<(double val) noexcept;
 
         MBuffer &operator<<(bool val) noexcept;
+
+        MBuffer &operator<<(const std::string &val) noexcept;
 
         void operator>>(uint8_t &val) const noexcept;
 
