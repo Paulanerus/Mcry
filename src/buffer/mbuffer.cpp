@@ -20,6 +20,11 @@ namespace Mcry
         m_Buffer.clear();
     }
 
+    uint8_t *MBuffer::data() const noexcept
+    {
+        return &m_Buffer[0];
+    }
+
     bool MBuffer::pop_front(size_t size)
     {
         if (!hasEnoughSpace(0, size))

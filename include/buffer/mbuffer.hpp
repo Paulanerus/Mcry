@@ -18,6 +18,8 @@ namespace Mcry
 
         void clear() noexcept;
 
+        uint8_t *data() const noexcept;
+
         bool pop_front(size_t size = 1);
 
         bool pop_back(size_t size = 1) noexcept;
