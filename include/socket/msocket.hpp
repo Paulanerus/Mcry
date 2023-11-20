@@ -9,7 +9,7 @@ namespace Mcry
     class MSocket
     {
     public:
-        MSocket(const std::string_view &address_specifier, const SocketConfig &config = {.max_connections = -1, .backlog = 64, .auto_accept = true});
+        MSocket(const std::string_view &address_specifier, const SocketConfig &config = {.max_connections = -1, .backlog = 6, .auto_accept = true});
 
         ~MSocket();
 
