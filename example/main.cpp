@@ -22,6 +22,10 @@ int main(int argc, char *argv[])
 
     std::cout << "Waiting for connection..." << std::endl;
 
+    Mcry::MBuffer buffer;
+
+    buffer << std::string{"Hello, Client"};
+
     Mcry::Pollux::PolluxIO pollux{true};
 
     const auto sock = m_socket.descriptor();
@@ -33,18 +37,9 @@ int main(int argc, char *argv[])
         Mcry::Pollux::PolluxIOEvent ret = pollux.wait();
 
         if (ret != Mcry::Pollux::PolluxIOEvent::SUCCESS)
-        {
-            if (ret == Mcry::Pollux::PolluxIOEvent::ERROR)
-                std::cout << "\nPollux error... " << std::strerror(errno) << std::endl;
-            else if (ret == Mcry::Pollux::PolluxIOEvent::TIME_OUT)
-                std::cout << "\nPollux timeout..." << std::endl;
-            else
-                std::cout << "\nPollux interrupted" << std::endl;
-
             continue;
-        }
 
-        auto handle_fd = [&pollux, &sock](int32_t file_id)
+        auto handle_fd = [&](int32_t file_id)
         {
             if (file_id == sock)
             {
@@ -60,10 +55,10 @@ int main(int argc, char *argv[])
             }
             else
             {
-                char buf[20];
-                std::fill_n(buf, sizeof(buf), 0);
+                char buf[20] = {};
 
                 int32_t num_bytes = recv(file_id, buf, sizeof(buf), 0);
+                // auto [succeded, recv_buf] = m_socket.recv();
 
                 if (num_bytes <= 0)
                 {
@@ -81,13 +76,15 @@ int main(int argc, char *argv[])
 
                 const std::string msg{"Hello, client"};
                 send(file_id, &msg[0], msg.length(), 0);
+
+                // m_socket.send(buffer);
             }
         };
 
         pollux.handle(handle_fd);
     }
 
-    std::cout << "Exiting..." << std::endl;
+    std::cout << "\nExiting..." << std::endl;
 
     return EXIT_SUCCESS;
 }
