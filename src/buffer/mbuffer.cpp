@@ -24,7 +24,7 @@ namespace Mcry
         return &m_Buffer[0];
     }
 
-    bool MBuffer::pop_front(size_t size)
+    bool MBuffer::popFront(size_t size)
     {
         if (!hasEnoughSpace(0, size))
             return false;
@@ -34,7 +34,7 @@ namespace Mcry
         return true;
     }
 
-    bool MBuffer::pop_back(size_t size) noexcept
+    bool MBuffer::popBack(size_t size) noexcept
     {
         if (!hasEnoughSpace(0, size))
             return false;
@@ -43,6 +43,11 @@ namespace Mcry
             m_Buffer.pop_back();
 
         return true;
+    }
+
+    std::string MBuffer::toString() const
+    {
+        return std::string{m_Buffer.begin(), m_Buffer.end()};
     }
 
     MBuffer &MBuffer::put(uint8_t val) noexcept

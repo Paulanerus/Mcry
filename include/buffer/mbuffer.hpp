@@ -20,9 +20,11 @@ namespace Mcry
 
         uint8_t *data() const noexcept;
 
-        bool pop_front(size_t size = 1);
+        bool popFront(size_t size = 1);
 
-        bool pop_back(size_t size = 1) noexcept;
+        bool popBack(size_t size = 1) noexcept;
+
+        std::string toString() const;
 
         MBuffer &put(uint8_t val) noexcept;
 
