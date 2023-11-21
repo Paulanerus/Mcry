@@ -1,6 +1,5 @@
 #include "socket/msocket.hpp"
 
-#include <iostream>
 #include <algorithm>
 #include <string>
 #include <cstdlib>
