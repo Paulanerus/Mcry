@@ -87,7 +87,7 @@ namespace Mcry
         if (::bind(m_Socket, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)) == -1)
             return false;
 
-        if (listen(m_Socket, m_Config.backlog) == -1)
+        if (m_Info.protocol == Protocol::TCP && listen(m_Socket, m_Config.backlog) == -1)
             return false;
 
         if (!m_Config.auto_accept)
