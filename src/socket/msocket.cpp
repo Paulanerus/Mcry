@@ -1,5 +1,10 @@
 #include "socket/msocket.hpp"
 
+#include <iostream>
+#include <algorithm>
+#include <string>
+#include <cstdlib>
+
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -7,18 +12,40 @@
 
 namespace Mcry
 {
-
     MSocket::MSocket(const std::string_view &address_specifier, const SocketConfig &config) : m_Config(config)
     {
-        /*
-            IP and Port are required otherwise unix domain socket is assumed.
-            Protocol is optional and defaults to tcp.
+        auto ends_with = [](const std::string_view &word, const std::string_view &suffix)
+        {
+            return word.size() >= suffix.size() && word.compare(word.size() - suffix.size(), suffix.size(), suffix) == 0;
+        };
 
-            127.0.0.1:25007\tcp
-        */
+        m_Info.protocol = ends_with(address_specifier, "/udp") ? Protocol::UDP : ends_with(address_specifier, "/rudp") ? Protocol::RUDP
+                                                                                                                       : Protocol::TCP;
 
-        m_Info.address = "127.0.0.1";
-        m_Info.port = 8346;
+        auto colon_count = std::count(address_specifier.begin(), address_specifier.end(), ':');
+
+        m_Info.is_unix = colon_count == 0;
+
+        m_Info.is_ipv6 = colon_count > 1;
+
+        auto protocol_start = address_specifier.find_last_of("/");
+        bool has_protocol = ends_with(address_specifier, "/udp") || ends_with(address_specifier, "/rudp") || ends_with(address_specifier, "/tcp");
+
+        if (m_Info.is_unix)
+            m_Info.address = address_specifier.substr(0, (protocol_start == std::string_view::npos || !has_protocol) ? address_specifier.length() : protocol_start);
+        else
+        {
+            auto last_colon = address_specifier.find_last_of(":");
+
+            m_Info.address = address_specifier.substr(0, last_colon);
+
+            auto port_length = std::min<uint8_t>((has_protocol ? protocol_start : address_specifier.length()) - (last_colon + 1), 5);
+
+            char port[6] = {};
+            std::copy_n(address_specifier.begin() + last_colon + 1, port_length, port);
+
+            m_Info.port = static_cast<uint16_t>(std::atoi(port));
+        }
     }
 
     MSocket::~MSocket()
@@ -68,7 +95,7 @@ namespace Mcry
 
         // TODO (paul) thread auto accepter
 
-        return false;
+        return true;
     }
 
     bool MSocket::send(const MBuffer &buffer, int32_t retries)
