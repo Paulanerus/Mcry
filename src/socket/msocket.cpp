@@ -1,6 +1,7 @@
 #include "socket/msocket.hpp"
 
 #include <algorithm>
+#include <iostream>
 #include <string>
 #include <cstdlib>
 
@@ -49,7 +50,12 @@ namespace Mcry
 
     MSocket::~MSocket()
     {
+        m_IsRunning = false;
+
         shutdown(m_Socket, SHUT_RDWR);
+
+        if (m_Accepter.joinable())
+            m_Accepter.join();
 
         close(m_Socket);
     }
@@ -89,12 +95,38 @@ namespace Mcry
         if (m_Info.protocol == Protocol::TCP && listen(m_Socket, m_Config.backlog) == -1)
             return false;
 
-        if (!m_Config.auto_accept)
+        if (!m_Config.auto_accept || m_Info.protocol != Protocol::TCP)
             return true;
 
-        // TODO (paul) thread auto accepter
+        std::cout << "Starting accepter thread..." << std::endl;
 
-        return true;
+        auto accept_lamba = [this]
+        {
+            while (m_IsRunning)
+            {
+                auto client_fd = ::accept(m_Socket, nullptr, nullptr);
+
+                if (client_fd == -1)
+                    continue;
+
+                if (!m_Pollux.add(client_fd))
+                    std::cout << "Failed to add client file descriptor" << std::endl;
+            }
+        };
+
+        try
+        {
+            m_Accepter = std::thread{accept_lamba};
+            return true;
+        }
+        catch (std::system_error &exception)
+        {
+            m_Config.auto_accept = false;
+
+            std::cout << "Failed to start accepter thread: " << exception.what() << " (" << exception.code() << ")" << std::endl;
+
+            return false;
+        }
     }
 
     bool MSocket::send(const MBuffer &buffer, int32_t retries)
@@ -109,6 +141,11 @@ namespace Mcry
         // TODO (paul) implementation
 
         return MReply{};
+    }
+
+    int32_t MSocket::accept() const noexcept
+    {
+        return (m_Config.auto_accept || m_Info.protocol != Protocol::TCP) ? -1 : ::accept(m_Socket, nullptr, nullptr);
     }
 
     ConnectionInfo MSocket::info() const noexcept

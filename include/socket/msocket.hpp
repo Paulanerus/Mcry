@@ -1,6 +1,10 @@
 #pragma once
 
 #include "socket_utils.hpp"
+#include "../pollux/pollux.hpp"
+
+#include <thread>
+#include <atomic>
 
 #include <sys/socket.h>
 
@@ -21,6 +25,8 @@ namespace Mcry
 
         MReply recv();
 
+        int32_t accept() const noexcept;
+
         ConnectionInfo info() const noexcept;
 
         int32_t descriptor() const noexcept
@@ -32,10 +38,16 @@ namespace Mcry
         sockaddr_storage getSockAddr(const std::string_view &address, uint16_t port) const noexcept;
 
     private:
-        const SocketConfig m_Config;
+        SocketConfig m_Config;
 
         int32_t m_Socket;
 
         ConnectionInfo m_Info{};
+
+        Pollux::PolluxIO m_Pollux{true};
+
+        std::thread m_Accepter;
+
+        std::atomic_bool m_IsRunning{true};
     };
 }
