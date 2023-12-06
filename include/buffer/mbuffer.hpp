@@ -50,6 +50,8 @@ namespace Mcry
 
         MBuffer &put(const std::string &val) noexcept;
 
+        MBuffer &put(const char *val) noexcept;
+
         bool get(uint8_t &val, size_t index = 0) const noexcept;
 
         bool get(int8_t &val, size_t index = 0) const noexcept;
@@ -99,6 +101,8 @@ namespace Mcry
         MBuffer &operator<<(bool val) noexcept;
 
         MBuffer &operator<<(const std::string &val) noexcept;
+
+        MBuffer &operator<<(const char *val) noexcept;
 
         void operator>>(uint8_t &val) const noexcept;
 

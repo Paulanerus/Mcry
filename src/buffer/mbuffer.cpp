@@ -2,6 +2,8 @@
 
 #include "net/mnet.hpp"
 
+#include <iostream>
+
 namespace Mcry
 {
     MBuffer::MBuffer(size_t size)
@@ -124,6 +126,11 @@ namespace Mcry
     MBuffer &MBuffer::put(const std::string &val) noexcept
     {
         return put(reinterpret_cast<uint8_t *>(&(const_cast<std::string &>(val)[0])), val.length());
+    }
+
+    MBuffer &MBuffer::put(const char *val) noexcept
+    {
+        return put(reinterpret_cast<uint8_t *>(const_cast<char *>(val)), std::char_traits<char>::length(val));
     }
 
     bool MBuffer::get(uint8_t &val, size_t index) const noexcept
@@ -319,6 +326,11 @@ namespace Mcry
     }
 
     MBuffer &MBuffer::operator<<(const std::string &val) noexcept
+    {
+        return put(val);
+    }
+
+    MBuffer &MBuffer::operator<<(const char *val) noexcept
     {
         return put(val);
     }
