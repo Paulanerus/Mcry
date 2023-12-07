@@ -126,6 +126,8 @@ namespace Mcry
 
         void operator>>(bool &val) const noexcept;
 
+        bool operator==(const MBuffer &other) const noexcept;
+
     private:
         MBuffer &put(uint8_t *data, size_t size) noexcept;
 

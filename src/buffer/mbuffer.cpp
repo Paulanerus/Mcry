@@ -390,6 +390,11 @@ namespace Mcry
         get(val);
     }
 
+    bool MBuffer::operator==(const MBuffer &other) const noexcept
+    {
+        return m_Buffer == other.m_Buffer;
+    }
+
     bool MBuffer::hasEnoughSpace(size_t index, size_t size) const noexcept
     {
         if (index < 0 || index >= m_Buffer.size())
